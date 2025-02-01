@@ -96,7 +96,21 @@ M.gen_from_json = function(opts)
             )
 
             if hl_group then
-                return display, { { { 0, #icon }, hl_group } }
+
+                -- The pattern () is a special feature in Lua patterns that captures the position of the match.
+                local colons_gmatch = string.gmatch(display, "():")
+                local first_colon_idx = colons_gmatch()
+                local second_colon_idx = colons_gmatch()
+                local third_colon_idx = colons_gmatch()
+                local path = string.sub(display, #icon+2, first_colon_idx)
+                local path_last_slash_idx = string.find(path, "/[^/]*$") or 0
+
+                return display, {
+                    { { 0, #icon }, hl_group },
+                    { { #icon + 1, #icon + 1 + path_last_slash_idx}, "TelescopeResultsComment"},
+                    { { first_colon_idx, second_colon_idx }, "TelescopeResultsSpecialComment"},
+                    { { second_colon_idx, third_colon_idx }, "TelescopeResultsComment"},
+                }
             else
                 return display
             end
